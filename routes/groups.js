@@ -20,7 +20,7 @@ router.get('/', (req, res) => {
 router.post('/create', (req, res) => {
   try {
     const { groupId, name, description, icon, agentId } = req.body;
-    
+
     if (!groupId || !name || !agentId) {
       return res.status(400).json({
         error: 'Missing required fields',
@@ -28,11 +28,11 @@ router.post('/create', (req, res) => {
         optional: ['description', 'icon']
       });
     }
-    
+
     if (!store.agentExists(agentId)) {
       return res.status(404).json({ error: `Agent '${agentId}' not registered` });
     }
-    
+
     const group = store.createGroup({
       groupId,
       name,
@@ -40,7 +40,7 @@ router.post('/create', (req, res) => {
       icon,
       createdBy: agentId
     });
-    
+
     res.status(201).json({
       message: 'Group created successfully',
       group: {
@@ -63,11 +63,11 @@ router.post('/create', (req, res) => {
  */
 router.get('/:groupId', (req, res) => {
   const group = store.getGroup(req.params.groupId);
-  
+
   if (!group) {
     return res.status(404).json({ error: `Group '${req.params.groupId}' not found` });
   }
-  
+
   res.json({
     groupId: group.groupId,
     name: group.name,
@@ -90,13 +90,13 @@ router.get('/:groupId', (req, res) => {
 router.post('/:groupId/join', (req, res) => {
   try {
     const { agentId } = req.body;
-    
+
     if (!agentId) {
       return res.status(400).json({ error: 'Missing required field: agentId' });
     }
-    
+
     const group = store.joinGroup(req.params.groupId, agentId);
-    
+
     res.json({
       message: `Joined group '${group.name}'`,
       groupId: group.groupId,
@@ -113,13 +113,13 @@ router.post('/:groupId/join', (req, res) => {
  */
 router.get('/:groupId/members', (req, res) => {
   const group = store.getGroup(req.params.groupId);
-  
+
   if (!group) {
     return res.status(404).json({ error: `Group '${req.params.groupId}' not found` });
   }
-  
+
   const members = store.getGroupMembers(req.params.groupId);
-  
+
   res.json({
     groupId: group.groupId,
     memberCount: members.length,
@@ -136,16 +136,16 @@ router.get('/:groupId/members', (req, res) => {
  */
 router.get('/:groupId/messages', (req, res) => {
   const group = store.getGroup(req.params.groupId);
-  
+
   if (!group) {
     return res.status(404).json({ error: `Group '${req.params.groupId}' not found` });
   }
-  
+
   const limit = parseInt(req.query.limit) || 50;
   const since = parseInt(req.query.since) || 0;
-  
+
   const { messages, total } = store.getMessages(req.params.groupId, { limit, since });
-  
+
   res.json({
     groupId: req.params.groupId,
     count: messages.length,
@@ -161,7 +161,7 @@ router.get('/:groupId/messages', (req, res) => {
 router.post('/:groupId/message', (req, res) => {
   try {
     const { agentId, content, replyTo } = req.body;
-    
+
     if (!agentId || !content) {
       return res.status(400).json({
         error: 'Missing required fields',
@@ -169,9 +169,9 @@ router.post('/:groupId/message', (req, res) => {
         optional: ['replyTo']
       });
     }
-    
+
     const message = store.postMessage(req.params.groupId, agentId, content, replyTo);
-    
+
     res.status(201).json({
       message: 'Message posted',
       data: message
@@ -188,20 +188,20 @@ router.post('/:groupId/message', (req, res) => {
 router.post('/:groupId/vote', async (req, res) => {
   try {
     const { agentId, messageId, voteType } = req.body;
-    
+
     if (!agentId || !messageId || !voteType) {
       return res.status(400).json({
         error: 'Missing required fields',
         required: ['agentId', 'messageId', 'voteType']
       });
     }
-    
+
     if (!['upvote', 'downvote', 'remove'].includes(voteType)) {
       return res.status(400).json({
         error: 'Invalid voteType. Must be "upvote", "downvote", or "remove"'
       });
     }
-    
+
     // Check if agent is spectator and verify token balance
     const agent = store.getAgent(agentId);
     if (agent && agent.role === 'spectator') {
@@ -217,7 +217,7 @@ router.post('/:groupId/vote', async (req, res) => {
           help: 'Re-register with wallet address to vote'
         });
       }
-      
+
       // Verify token balance before allowing vote
       try {
         const tokenCheck = await checkTokenBalance(agent.walletAddress);
@@ -230,7 +230,7 @@ router.post('/:groupId/vote', async (req, res) => {
             tokenContract: config.tokenAddress,
             chain: 'Base',
             message: `You need ${tokenCheck.required} tokens to vote as a spectator`,
-            buyTokens: 'https://clanker.world/clanker/0x2e2ee82d36302d2c58349Ae40Bb30E9285f50B07'
+            buyTokens: 'https://clanker.world/clanker/0xCf1F906e789c483DcB2f5161C502349775b2cb07'
           });
         }
       } catch (verifyError) {
@@ -238,9 +238,9 @@ router.post('/:groupId/vote', async (req, res) => {
         // Allow vote to proceed if in dev mode
       }
     }
-    
+
     const message = store.voteMessage(req.params.groupId, messageId, agentId, voteType);
-    
+
     res.json({
       message: 'Vote recorded',
       data: {

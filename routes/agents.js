@@ -11,7 +11,7 @@ const { checkTokenBalance, getTokenConfig } = require('../tokenVerifier');
 router.post('/register', async (req, res) => {
   try {
     const { agentId, name, skillsUrl, endpoint, role, walletAddress } = req.body;
-    
+
     if (!agentId || !name) {
       return res.status(400).json({
         error: 'Missing required fields',
@@ -19,13 +19,13 @@ router.post('/register', async (req, res) => {
         optional: ['skillsUrl', 'endpoint', 'role', 'walletAddress']
       });
     }
-    
+
     if (role && !['debater', 'spectator'].includes(role)) {
       return res.status(400).json({
         error: 'Invalid role. Must be "debater" or "spectator"'
       });
     }
-    
+
     // Spectators must provide wallet and have required tokens
     if (role === 'spectator') {
       if (!walletAddress) {
@@ -38,10 +38,10 @@ router.post('/register', async (req, res) => {
             tokenContract: config.tokenAddress,
             chain: config.chain
           },
-          help: 'Get tokens at: https://clanker.world/clanker/0x2e2ee82d36302d2c58349Ae40Bb30E9285f50B07'
+          help: 'Get tokens at: https://clanker.world/clanker/0xCf1F906e789c483DcB2f5161C502349775b2cb07'
         });
       }
-      
+
       // Verify token balance
       try {
         const tokenCheck = await checkTokenBalance(walletAddress);
@@ -54,7 +54,7 @@ router.post('/register', async (req, res) => {
             tokenContract: config.tokenAddress,
             chain: 'Base',
             message: `You need ${tokenCheck.required} tokens to vote as a spectator`,
-            buyTokens: 'https://clanker.world/clanker/0x2e2ee82d36302d2c58349Ae40Bb30E9285f50B07'
+            buyTokens: 'https://clanker.world/clanker/0xCf1F906e789c483DcB2f5161C502349775b2cb07'
           });
         }
       } catch (verifyError) {
@@ -62,9 +62,9 @@ router.post('/register', async (req, res) => {
         // Continue registration if in dev mode
       }
     }
-    
+
     const agent = store.registerAgent({ agentId, name, skillsUrl, endpoint, role, walletAddress });
-    
+
     res.status(201).json({
       message: 'Agent registered successfully',
       agent
@@ -81,7 +81,7 @@ router.post('/register', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const agents = store.getAllAgents();
-    
+
     // Fetch skills for each agent
     const agentsWithSkills = await Promise.all(
       agents.map(async (agent) => {
@@ -101,7 +101,7 @@ router.get('/', async (req, res) => {
         }
       })
     );
-    
+
     res.json({ agents: agentsWithSkills });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -114,11 +114,11 @@ router.get('/', async (req, res) => {
  */
 router.get('/:agentId', (req, res) => {
   const agent = store.getAgent(req.params.agentId);
-  
+
   if (!agent) {
     return res.status(404).json({ error: `Agent '${req.params.agentId}' not found` });
   }
-  
+
   res.json({ agent });
 });
 
@@ -129,11 +129,11 @@ router.get('/:agentId', (req, res) => {
 router.get('/:agentId/skills', async (req, res) => {
   try {
     const agent = store.getAgent(req.params.agentId);
-    
+
     if (!agent) {
       return res.status(404).json({ error: `Agent '${req.params.agentId}' not found` });
     }
-    
+
     if (agent.skillsUrl === 'none') {
       return res.json({
         agentId: agent.agentId,
@@ -142,15 +142,15 @@ router.get('/:agentId/skills', async (req, res) => {
         skills: []
       });
     }
-    
+
     const response = await fetch(agent.skillsUrl);
     if (!response.ok) {
       return res.status(502).json({ error: 'Failed to fetch skills.md' });
     }
-    
+
     const markdown = await response.text();
     const skills = parseSkills(markdown);
-    
+
     res.json({
       agentId: agent.agentId,
       skillsUrl: agent.skillsUrl,

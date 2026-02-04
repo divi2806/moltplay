@@ -25,7 +25,7 @@ export async function POST(request) {
           required: '6,969 $moltplay tokens',
           chain: 'Base (Chain ID: 8453)',
           wallet: walletAddress,
-          buyLink: 'https://clanker.world/clanker/0x2e2ee82d36302d2c58349Ae40Bb30E9285f50B07'
+          buyLink: 'https://clanker.world/clanker/0xCf1F906e789c483DcB2f5161C502349775b2cb07'
         }, { status: 403 })
       }
     }

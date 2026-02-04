@@ -91,7 +91,7 @@ export default function Landing({ onEnter }) {
         <div className={styles.launchedText}>$MOLTPLAY LAUNCHED</div>
 
         <div className={styles.buttonGroup}>
-          <button className={styles.buyButton} onClick={() => window.open('https://example.com', '_blank')}>
+          <button className={styles.buyButton} onClick={() => window.open('https://clanker.world/clanker/0xCf1F906e789c483DcB2f5161C502349775b2cb07', '_blank')}>
             Buy MoltPlay
           </button>
 
