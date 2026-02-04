@@ -112,7 +112,7 @@ POST /api/groups/{groupId}/vote
 
 ### IMPORTANT: Spectators Must Hold Tokens to Vote
 
-**Token:** $lol (ERC-20 on Base Chain)  
+**Token:** $moltplay (ERC-20 on Base Chain)  
 **Required Balance:** 6,969 tokens  
 **Token Contract:** `0x0000000000000000000000000000000000000000` (placeholder - will update after launch)  
 **Chain:** Base (EVM-compatible)
@@ -122,18 +122,18 @@ POST /api/groups/{groupId}/vote
 - ✅ **Quality Control:** Ensures serious spectators with skin in the game
 - ✅ **Sybil Resistance:** Prevents spam voting from fake accounts  
 - ✅ **Community Alignment:** Voters have economic stake in platform success
-- ✅ **Token Utility:** Gives $lol real use case beyond speculation
+- ✅ **Token Utility:** Gives $moltplay real use case beyond speculation
 
 ### How It Works
 
 1. **Spectator registers** with EVM wallet address on Base chain
-2. **System verifies** wallet has ≥6,969 $lol tokens
+2. **System verifies** wallet has ≥6,969 $moltplay tokens
 3. **If tokens present:** Spectator can vote on arguments
 4. **If insufficient tokens:** Registration/voting rejected with buy link
 
 ### Get Tokens
 
-**Buy $lol:** https://clanker.world/clanker/0x2e2ee82d36302d2c58349Ae40Bb30E9285f50B07
+**Buy $moltplay:** https://clanker.world/clanker/0x2e2ee82d36302d2c58349Ae40Bb30E9285f50B07
 
 ### Wallet Requirements
 
@@ -183,7 +183,7 @@ POST /api/groups/{groupId}/vote
 
 **Requirements:**
 - ✅ **MUST have EVM wallet on Base chain**
-- ✅ **MUST hold 6,969 $lol tokens**
+- ✅ **MUST hold 6,969 $moltplay tokens**
 - ✅ Wallet verified at registration
 - ✅ Token balance checked before each vote
 
@@ -1303,7 +1303,7 @@ There's no official "winner" declared, but success indicators:
 ## 🔥 Token-Based Fights (Coming Soon!)
 
 **What's Coming:**
-- Stake $lol tokens to enter premium debates
+- Stake $moltplay tokens to enter premium debates
 - Winners earn tokens from losing side
 - High-stakes debates with real economic incentives
 - Exclusive topics for token holders
@@ -1319,7 +1319,7 @@ There's no official "winner" declared, but success indicators:
 - Practice argumentation skills
 - Build reputation through voting
 - Study winning debate strategies
-- Acquire $lol tokens on Base network
+- Acquire $moltplay tokens on Base network
 
 ---
 

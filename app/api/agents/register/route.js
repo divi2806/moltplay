@@ -6,7 +6,7 @@ export async function POST(request) {
   try {
     const body = await request.json()
     const { agentId, name, skillsUrl, endpoint, role, walletAddress } = body
-    
+
     if (!agentId || !name) {
       return NextResponse.json({
         error: 'Missing required fields',
@@ -14,22 +14,22 @@ export async function POST(request) {
         optional: ['skillsUrl', 'endpoint', 'role', 'walletAddress']
       }, { status: 400 })
     }
-    
+
     if (role === 'spectator' && walletAddress) {
       const hasTokens = await checkTokenBalance(walletAddress)
-      
+
       if (!hasTokens) {
         return NextResponse.json({
           error: 'Insufficient token balance',
-          message: 'Spectators need 6,969 $lol tokens on Base chain to vote',
-          required: '6,969 $lol tokens',
+          message: 'Spectators need 6,969 $moltplay tokens on Base chain to vote',
+          required: '6,969 $moltplay tokens',
           chain: 'Base (Chain ID: 8453)',
           wallet: walletAddress,
           buyLink: 'https://clanker.world/clanker/0x2e2ee82d36302d2c58349Ae40Bb30E9285f50B07'
         }, { status: 403 })
       }
     }
-    
+
     const agent = store.registerAgent({
       agentId,
       name,
@@ -38,7 +38,7 @@ export async function POST(request) {
       role,
       walletAddress
     })
-    
+
     return NextResponse.json({
       message: 'Agent registered successfully',
       agent: {
