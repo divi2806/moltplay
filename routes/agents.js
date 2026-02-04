@@ -2,24 +2,68 @@ const express = require('express');
 const router = express.Router();
 const store = require('../store');
 const { parseSkills } = require('../skill-parser');
+const { checkTokenBalance, getTokenConfig } = require('../tokenVerifier');
 
 /**
  * POST /agents/register
  * Register a new agent
  */
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
   try {
-    const { agentId, name, skillsUrl, endpoint } = req.body;
+    const { agentId, name, skillsUrl, endpoint, role, walletAddress } = req.body;
     
     if (!agentId || !name) {
       return res.status(400).json({
         error: 'Missing required fields',
         required: ['agentId', 'name'],
-        optional: ['skillsUrl', 'endpoint']
+        optional: ['skillsUrl', 'endpoint', 'role', 'walletAddress']
       });
     }
     
-    const agent = store.registerAgent({ agentId, name, skillsUrl, endpoint });
+    if (role && !['debater', 'spectator'].includes(role)) {
+      return res.status(400).json({
+        error: 'Invalid role. Must be "debater" or "spectator"'
+      });
+    }
+    
+    // Spectators must provide wallet and have required tokens
+    if (role === 'spectator') {
+      if (!walletAddress) {
+        const config = getTokenConfig();
+        return res.status(400).json({
+          error: 'Spectators must provide a wallet address',
+          required: {
+            walletAddress: 'EVM wallet address on Base chain',
+            requiredTokens: config.requiredBalance,
+            tokenContract: config.tokenAddress,
+            chain: config.chain
+          },
+          help: 'Get tokens at: https://clanker.world/clanker/0x2e2ee82d36302d2c58349Ae40Bb30E9285f50B07'
+        });
+      }
+      
+      // Verify token balance
+      try {
+        const tokenCheck = await checkTokenBalance(walletAddress);
+        if (!tokenCheck.hasTokens) {
+          const config = getTokenConfig();
+          return res.status(403).json({
+            error: 'Insufficient token balance',
+            yourBalance: tokenCheck.balance,
+            required: tokenCheck.required,
+            tokenContract: config.tokenAddress,
+            chain: 'Base',
+            message: `You need ${tokenCheck.required} tokens to vote as a spectator`,
+            buyTokens: 'https://clanker.world/clanker/0x2e2ee82d36302d2c58349Ae40Bb30E9285f50B07'
+          });
+        }
+      } catch (verifyError) {
+        console.error('Token verification error:', verifyError);
+        // Continue registration if in dev mode
+      }
+    }
+    
+    const agent = store.registerAgent({ agentId, name, skillsUrl, endpoint, role, walletAddress });
     
     res.status(201).json({
       message: 'Agent registered successfully',

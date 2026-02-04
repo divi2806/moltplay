@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const store = require('../store');
+const { checkTokenBalance, getTokenConfig } = require('../tokenVerifier');
+const topicGenerator = require('../topicGenerator');
 
 /**
  * GET /groups
@@ -70,11 +72,14 @@ router.get('/:groupId', (req, res) => {
     groupId: group.groupId,
     name: group.name,
     description: group.description,
+    topic: group.topic,
     icon: group.icon,
     createdBy: group.createdBy,
     createdAt: group.createdAt,
     memberCount: group.members.length,
-    messageCount: group.messages.length
+    messageCount: group.messages.length,
+    debateStatus: group.debateStatus,
+    stances: group.stances
   });
 });
 
@@ -174,6 +179,104 @@ router.post('/:groupId/message', (req, res) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
+});
+
+/**
+ * POST /groups/:groupId/vote
+ * Vote on a message (upvote or downvote)
+ */
+router.post('/:groupId/vote', async (req, res) => {
+  try {
+    const { agentId, messageId, voteType } = req.body;
+    
+    if (!agentId || !messageId || !voteType) {
+      return res.status(400).json({
+        error: 'Missing required fields',
+        required: ['agentId', 'messageId', 'voteType']
+      });
+    }
+    
+    if (!['upvote', 'downvote', 'remove'].includes(voteType)) {
+      return res.status(400).json({
+        error: 'Invalid voteType. Must be "upvote", "downvote", or "remove"'
+      });
+    }
+    
+    // Check if agent is spectator and verify token balance
+    const agent = store.getAgent(agentId);
+    if (agent && agent.role === 'spectator') {
+      if (!agent.walletAddress) {
+        const config = getTokenConfig();
+        return res.status(403).json({
+          error: 'Spectators must have a wallet address registered',
+          required: {
+            walletAddress: 'EVM wallet address on Base chain',
+            requiredTokens: config.requiredBalance,
+            tokenContract: config.tokenAddress
+          },
+          help: 'Re-register with wallet address to vote'
+        });
+      }
+      
+      // Verify token balance before allowing vote
+      try {
+        const tokenCheck = await checkTokenBalance(agent.walletAddress);
+        if (!tokenCheck.hasTokens && !tokenCheck.dev_mode) {
+          const config = getTokenConfig();
+          return res.status(403).json({
+            error: 'Insufficient token balance to vote',
+            yourBalance: tokenCheck.balance,
+            required: tokenCheck.required,
+            tokenContract: config.tokenAddress,
+            chain: 'Base',
+            message: `You need ${tokenCheck.required} tokens to vote as a spectator`,
+            buyTokens: 'https://clanker.world/clanker/0x2e2ee82d36302d2c58349Ae40Bb30E9285f50B07'
+          });
+        }
+      } catch (verifyError) {
+        console.error('Token verification error during vote:', verifyError);
+        // Allow vote to proceed if in dev mode
+      }
+    }
+    
+    const message = store.voteMessage(req.params.groupId, messageId, agentId, voteType);
+    
+    res.json({
+      message: 'Vote recorded',
+      data: {
+        messageId: message.id,
+        score: message.score,
+        upvotes: message.upvotes.length,
+        downvotes: message.downvotes.length
+      }
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /groups/topics/stats
+ * Get statistics about the topic pool
+ */
+router.get('/topics/stats', (req, res) => {
+  const stats = topicGenerator.getTopicStats();
+  res.json({
+    message: 'Topic pool statistics',
+    data: stats
+  });
+});
+
+/**
+ * GET /groups/topics/random
+ * Get a random topic (for testing purposes)
+ */
+router.get('/topics/random', (req, res) => {
+  const topic = topicGenerator.getRandomTopic();
+  res.json({
+    message: 'Random topic generated',
+    data: topic
+  });
 });
 
 module.exports = router;
