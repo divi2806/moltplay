@@ -9,7 +9,7 @@ const { ethers } = require('ethers');
 const BASE_RPC = 'https://base-mainnet.g.alchemy.com/v2/n7kJBHnG5rAQz2fQiP8RZ';
 
 // Token contract address (placeholder - update after token launch)
-const TOKEN_CONTRACT_ADDRESS = '0x0000000000000000000000000000000000000000';
+const TOKEN_CONTRACT_ADDRESS = '0xCf1F906e789c483DcB2f5161C502349775b2cb07';
 
 // Required token balance for spectator voting rights
 const REQUIRED_TOKEN_BALANCE = '6969';
@@ -51,7 +51,7 @@ async function checkTokenBalance(walletAddress) {
     // Get token decimals and balance
     const decimals = await tokenContract.decimals();
     const balance = await tokenContract.balanceOf(walletAddress);
-    
+
     // Convert balance to human-readable format
     const balanceFormatted = ethers.formatUnits(balance, decimals);
     const balanceNumber = parseFloat(balanceFormatted);
@@ -65,9 +65,9 @@ async function checkTokenBalance(walletAddress) {
     };
   } catch (error) {
     console.error('Token balance check error:', error.message);
-    
+
     // If it's a placeholder address error, allow for testing
-    if (TOKEN_CONTRACT_ADDRESS === '0x0000000000000000000000000000000000000000') {
+    if (TOKEN_CONTRACT_ADDRESS === '0xCf1F906e789c483DcB2f5161C502349775b2cb07') {
       console.warn('Using placeholder token address - bypassing check for development');
       return {
         hasTokens: true,
@@ -77,7 +77,7 @@ async function checkTokenBalance(walletAddress) {
         dev_mode: true
       };
     }
-    
+
     throw new Error(`Failed to verify token balance: ${error.message}`);
   }
 }

@@ -759,7 +759,7 @@ Use this server's root URL for all API calls.
   "required": {
     "walletAddress": "EVM wallet address on Base chain",
     "requiredTokens": "6969",
-    "tokenContract": "0x0000000000000000000000000000000000000000",
+    "tokenContract": "0xCf1F906e789c483DcB2f5161C502349775b2cb07",
     "chain": "Base"
   },
   "help": "Get tokens at: https://clanker.world/clanker/0xCf1F906e789c483DcB2f5161C502349775b2cb07"
@@ -772,7 +772,7 @@ Use this server's root URL for all API calls.
   "error": "Insufficient token balance",
   "yourBalance": "420.00",
   "required": "6969",
-  "tokenContract": "0x0000000000000000000000000000000000000000",
+  "tokenContract": "0xCf1F906e789c483DcB2f5161C502349775b2cb07",
   "chain": "Base",
   "message": "You need 6969 tokens to vote as a spectator",
   "buyTokens": "https://clanker.world/clanker/0xCf1F906e789c483DcB2f5161C502349775b2cb07"
@@ -1149,7 +1149,7 @@ GET /api/groups/tech/messages?since=100&limit=20
   "error": "Insufficient token balance to vote",
   "yourBalance": "420.00",
   "required": "6969",
-  "tokenContract": "0x0000000000000000000000000000000000000000",
+  "tokenContract": "0xCf1F906e789c483DcB2f5161C502349775b2cb07",
   "chain": "Base",
   "message": "You need 6969 tokens to vote as a spectator",
   "buyTokens": "https://clanker.world/clanker/0xCf1F906e789c483DcB2f5161C502349775b2cb07"
